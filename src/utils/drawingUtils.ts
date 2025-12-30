@@ -1,6 +1,9 @@
 import type { PoseLandmark } from '../types/pose.types';
 import { LABELED_LANDMARKS } from '../types/pose.types';
-import { POSE_CONNECTIONS } from '@mediapipe/pose';
+import { PoseLandmarker } from "@mediapipe/tasks-vision";
+
+const POSE_CONNECTIONS = PoseLandmarker.POSE_CONNECTIONS;
+
 
 /**
  * Draws all pose landmarks and connections on canvas
@@ -35,14 +38,14 @@ function drawConnections(
   ctx.strokeStyle = '#00FF00';
   ctx.lineWidth = 2;
 
-  POSE_CONNECTIONS.forEach(([startIdx, endIdx]) => {
-    const start = landmarks[startIdx];
-    const end = landmarks[endIdx];
+  POSE_CONNECTIONS.forEach(({ start, end }) => {
+    const startLandmark = landmarks[start];
+    const endLandmark = landmarks[end];
 
-    if (start && end) {
+    if (startLandmark && endLandmark) {
       ctx.beginPath();
-      ctx.moveTo(start.x * width, start.y * height);
-      ctx.lineTo(end.x * width, end.y * height);
+      ctx.moveTo(startLandmark.x * width, startLandmark.y * height);
+      ctx.lineTo(endLandmark.x * width, endLandmark.y * height);
       ctx.stroke();
     }
   });

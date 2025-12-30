@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# MediaPipe model files (large binaries)
+public/mediapipe/
+public/pose/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

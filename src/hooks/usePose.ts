@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PoseLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import { drawPoseLandmarks } from '../utils/drawingUtils';
+import { detectMistakes, type Mistake } from '../utils/mistakeDetection';
 
 interface UsePoseReturn {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -8,6 +9,7 @@ interface UsePoseReturn {
   isLoading: boolean;
   error: string | null;
   isPoseDetected: boolean;
+  mistakes: Mistake[];
 }
 
 /**
@@ -22,6 +24,7 @@ export function usePose(): UsePoseReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPoseDetected, setIsPoseDetected] = useState(false);
+  const [mistakes, setMistakes] = useState<Mistake[]>([]);
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -76,9 +79,12 @@ export function usePose(): UsePoseReturn {
                 setIsPoseDetected(hasPose);
 
                 if (hasPose) {
-                  drawPoseLandmarks(ctx, results.landmarks[0], 640, 480);
+                  const currentMistakes = detectMistakes(results.landmarks[0]);
+                  setMistakes(currentMistakes);
+                  drawPoseLandmarks(ctx, results.landmarks[0], 640, 480, currentMistakes);
                 } else {
                   ctx.clearRect(0, 0, 640, 480);
+                  setMistakes([]);
                 }
               }
 
@@ -120,5 +126,6 @@ export function usePose(): UsePoseReturn {
     isLoading,
     error,
     isPoseDetected,
+    mistakes,
   };
 }

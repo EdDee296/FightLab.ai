@@ -1,6 +1,7 @@
 import type { PoseLandmark } from '../types/pose.types';
 import { LABELED_LANDMARKS } from '../types/pose.types';
 import { PoseLandmarker } from "@mediapipe/tasks-vision";
+import type { Mistake } from './mistakeDetection';
 
 const POSE_CONNECTIONS = PoseLandmarker.POSE_CONNECTIONS;
 
@@ -13,7 +14,8 @@ export function drawPoseLandmarks(
   ctx: CanvasRenderingContext2D,
   landmarks: PoseLandmark[],
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
+  mistakes: Mistake[] = []
 ): void {
   if (!landmarks || landmarks.length === 0) return;
 
@@ -27,6 +29,9 @@ export function drawPoseLandmarks(
 
   // Draw labels for key joints
   drawLandmarkLabels(ctx, landmarks, canvasWidth, canvasHeight);
+
+  // Draw mistake alerts
+  drawMistakeAlerts(ctx, mistakes, canvasWidth, canvasHeight);
 }
 
 function drawConnections(
@@ -96,5 +101,40 @@ function drawLandmarkLabels(
       ctx.strokeText(text, x + 10, y - 10);
       ctx.fillText(text, x + 10, y - 10);
     }
+  });
+}
+
+function drawMistakeAlerts(
+  ctx: CanvasRenderingContext2D,
+  mistakes: Mistake[],
+  width: number,
+  _height: number
+): void {
+  if (mistakes.length === 0) return;
+
+  const padding = 16;
+  const alertHeight = 40;
+  const alertSpacing = 8;
+  const borderRadius = 8;
+  const startX = width - 250;
+  let startY = padding;
+
+  ctx.font = 'bold 16px sans-serif';
+  ctx.textBaseline = 'middle';
+
+  mistakes.forEach((mistake) => {
+    const alertWidth = 230;
+
+    // Draw rounded rectangle background
+    ctx.fillStyle = mistake.severity === 'error' ? 'rgba(220, 38, 38, 0.9)' : 'rgba(217, 119, 6, 0.9)';
+    ctx.beginPath();
+    ctx.roundRect(startX, startY, alertWidth, alertHeight, borderRadius);
+    ctx.fill();
+
+    // Draw text
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(mistake.message, startX + padding, startY + alertHeight / 2);
+
+    startY += alertHeight + alertSpacing;
   });
 }

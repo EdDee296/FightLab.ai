@@ -125,8 +125,13 @@ function drawMistakeAlerts(
   mistakes.forEach((mistake) => {
     const alertWidth = 230;
 
+    // Determine opacity based on shouldAlert flag
+    const opacity = mistake.shouldAlert ? 0.95 : 0.5;
+
     // Draw rounded rectangle background
-    ctx.fillStyle = mistake.severity === 'error' ? 'rgba(220, 38, 38, 0.9)' : 'rgba(217, 119, 6, 0.9)';
+    ctx.fillStyle = mistake.severity === 'error' 
+      ? `rgba(220, 38, 38, ${opacity})` 
+      : `rgba(217, 119, 6, ${opacity})`;
     ctx.beginPath();
     ctx.roundRect(startX, startY, alertWidth, alertHeight, borderRadius);
     ctx.fill();
